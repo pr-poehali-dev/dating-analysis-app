@@ -110,54 +110,57 @@ export default function Index() {
     }
   };
 
+  const currentProfile = mockProfiles[currentProfileIndex];
+  const compatibility = calculateCompatibility(currentUser, currentProfile);
+  const profileWithCompatibility = { ...currentProfile, compatibility: compatibility.overall };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-12 animate-fade-in">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-primary rounded-2xl">
-              <Icon name="Heart" size={32} className="text-white" />
-            </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              LoveMatch
-            </h1>
-          </div>
-          <p className="text-muted-foreground text-lg">
-            Умный алгоритм подбора по интересам, психотипам и знакам зодиака
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-md">
+        <header className="text-center mb-6 animate-fade-in">
+          <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mb-2 tracking-tight">
+            Twin
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Найди свою вторую половинку
           </p>
         </header>
 
-        <Tabs defaultValue="discover" className="max-w-4xl mx-auto">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="discover" className="flex items-center gap-2">
-              <Icon name="Compass" size={18} />
-              <span>Поиск</span>
+        <Tabs defaultValue="discover" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-6 bg-card/50 p-1 h-14">
+            <TabsTrigger value="discover" className="flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
+              <Icon name="Flame" size={20} />
             </TabsTrigger>
-            <TabsTrigger value="matches" className="flex items-center gap-2">
-              <Icon name="Users" size={18} />
-              <span>Совпадения</span>
+            <TabsTrigger value="matches" className="flex items-center justify-center gap-1.5 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
+              <Icon name="Heart" size={20} />
               {matches.length > 0 && (
-                <span className="ml-1 px-2 py-0.5 bg-primary text-white text-xs rounded-full">
+                <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-primary text-white text-xs rounded-full min-w-[20px] text-center">
                   {matches.length}
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <Icon name="User" size={18} />
-              <span>Профиль</span>
+            <TabsTrigger value="profile" className="flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
+              <Icon name="User" size={20} />
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="discover" className="animate-scale-in">
             {mockProfiles.length > 0 ? (
-              <div className="max-w-lg mx-auto">
+              <div className="w-full">
                 <ProfileCard
-                  profile={mockProfiles[currentProfileIndex]}
+                  profile={profileWithCompatibility}
                   onLike={handleLike}
                   onDislike={handleDislike}
                 />
-                <div className="mt-4 text-center text-sm text-muted-foreground">
-                  {currentProfileIndex + 1} из {mockProfiles.length}
+                <div className="mt-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-1">
+                  {Array.from({ length: mockProfiles.length }).map((_, i) => (
+                    <div
+                      key={i}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        i === currentProfileIndex ? 'bg-primary w-6' : 'bg-muted'
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
             ) : (
@@ -171,7 +174,7 @@ export default function Index() {
 
           <TabsContent value="matches" className="animate-scale-in">
             {matches.length > 0 ? (
-              <div className="grid gap-6">
+              <div className="grid gap-4">
                 {matches.map((match) => {
                   const compatibility = calculateCompatibility(currentUser, match);
                   return (
