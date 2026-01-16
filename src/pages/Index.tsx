@@ -2,6 +2,8 @@ import { useState } from 'react';
 import ProfileCard, { Profile } from '@/components/ProfileCard';
 import CompatibilityCard from '@/components/CompatibilityCard';
 import UserProfile from '@/components/UserProfile';
+import BlogPost, { Post } from '@/components/BlogPost';
+import CreatePost from '@/components/CreatePost';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Icon from '@/components/ui/icon';
 import { Card } from '@/components/ui/card';
@@ -87,9 +89,59 @@ function calculateCompatibility(user: Profile, profile: Profile) {
   };
 }
 
+const mockPosts: Post[] = [
+  {
+    id: '1',
+    userId: '1',
+    userName: 'Анна',
+    userPhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&h=800&fit=crop',
+    content: 'Прекрасный день для прогулки по городу! 🌸',
+    media: [
+      {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800&h=800&fit=crop'
+      }
+    ],
+    likes: 42,
+    comments: 5,
+    timestamp: new Date(Date.now() - 3600000)
+  },
+  {
+    id: '2',
+    userId: '2',
+    userName: 'Мария',
+    userPhoto: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&h=800&fit=crop',
+    content: 'Новая книга захватила с первых страниц! Кто читал "Мастера и Маргариту"? 📚',
+    likes: 28,
+    comments: 12,
+    timestamp: new Date(Date.now() - 7200000)
+  },
+  {
+    id: '3',
+    userId: '3',
+    userName: 'Елена',
+    userPhoto: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=800&h=800&fit=crop',
+    content: 'Закат в горах — это что-то невероятное! 🏔️',
+    media: [
+      {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=800&fit=crop'
+      },
+      {
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&h=800&fit=crop'
+      }
+    ],
+    likes: 156,
+    comments: 23,
+    timestamp: new Date(Date.now() - 10800000)
+  }
+];
+
 export default function Index() {
   const [currentProfileIndex, setCurrentProfileIndex] = useState(0);
   const [matches, setMatches] = useState<Profile[]>([]);
+  const [posts, setPosts] = useState<Post[]>(mockPosts);
 
   const handleLike = () => {
     const likedProfile = mockProfiles[currentProfileIndex];
@@ -127,9 +179,12 @@ export default function Index() {
         </header>
 
         <Tabs defaultValue="discover" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6 bg-card/50 p-1 h-14">
+          <TabsList className="grid w-full grid-cols-4 mb-6 bg-card/50 p-1 h-14">
             <TabsTrigger value="discover" className="flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
               <Icon name="Flame" size={20} />
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="flex items-center justify-center gap-1.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
+              <Icon name="LayoutGrid" size={20} />
             </TabsTrigger>
             <TabsTrigger value="matches" className="flex items-center justify-center gap-1.5 relative data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-white rounded-xl transition-all">
               <Icon name="Heart" size={20} />
@@ -170,6 +225,30 @@ export default function Index() {
                 <p className="text-muted-foreground">Проверьте раздел совпадений</p>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="blog" className="animate-scale-in">
+            <div className="space-y-4">
+              <CreatePost
+                userPhoto={currentUser.photo}
+                userName={currentUser.name}
+                userId={currentUser.id}
+                onCreatePost={(post) => setPosts([post, ...posts])}
+              />
+              
+              {posts.map((post) => (
+                <BlogPost
+                  key={post.id}
+                  post={post}
+                  onLike={(postId) => {
+                    setPosts(posts.map(p => 
+                      p.id === postId ? { ...p, likes: p.likes + 1 } : p
+                    ));
+                  }}
+                  onComment={(postId) => console.log('Comment on:', postId)}
+                />
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="matches" className="animate-scale-in">
