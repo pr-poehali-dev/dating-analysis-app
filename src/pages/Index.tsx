@@ -119,7 +119,7 @@ export default function Index() {
       <div className="container mx-auto px-4 py-6 max-w-md">
         <header className="text-center mb-6 animate-fade-in">
           <h1 className="text-6xl font-bold bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent mb-2 tracking-tight">
-            Twin
+            WIN
           </h1>
           <p className="text-muted-foreground text-sm">
             Найди свою вторую половинку
