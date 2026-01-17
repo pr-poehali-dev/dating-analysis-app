@@ -4,6 +4,8 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
 import { Post } from './BlogPost';
+import AIImageGenerator from './AIImageGenerator';
+import AIImageEditor from './AIImageEditor';
 
 interface CreatePostProps {
   userPhoto: string;
@@ -16,6 +18,9 @@ export default function CreatePost({ userPhoto, userName, userId, onCreatePost }
   const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState('');
   const [mediaFiles, setMediaFiles] = useState<{ type: 'image' | 'video'; url: string }[]>([]);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [showAIEditor, setShowAIEditor] = useState(false);
+  const [editingImageIndex, setEditingImageIndex] = useState<number | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -126,16 +131,62 @@ export default function CreatePost({ userPhoto, userName, userId, onCreatePost }
               ) : (
                 <video src={file.url} className="w-full h-full object-cover" />
               )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-1 right-1 h-6 w-6 bg-black/50 hover:bg-black/70 text-white"
-                onClick={() => setMediaFiles(prev => prev.filter((_, i) => i !== index))}
-              >
-                <Icon name="X" size={14} />
-              </Button>
+              <div className="absolute top-1 right-1 flex gap-1">
+                {file.type === 'image' && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 bg-black/50 hover:bg-black/70 text-white"
+                    onClick={() => {
+                      setEditingImageIndex(index);
+                      setShowAIEditor(true);
+                    }}
+                  >
+                    <Icon name="Wand2" size={12} />
+                  </Button>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 bg-black/50 hover:bg-black/70 text-white"
+                  onClick={() => setMediaFiles(prev => prev.filter((_, i) => i !== index))}
+                >
+                  <Icon name="X" size={14} />
+                </Button>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showAIGenerator && (
+        <div className="mb-3">
+          <AIImageGenerator
+            onImageGenerated={(url) => {
+              setMediaFiles(prev => [...prev, { type: 'image', url }]);
+              setShowAIGenerator(false);
+            }}
+            onClose={() => setShowAIGenerator(false)}
+          />
+        </div>
+      )}
+
+      {showAIEditor && editingImageIndex !== null && (
+        <div className="mb-3">
+          <AIImageEditor
+            imageUrl={mediaFiles[editingImageIndex].url}
+            onImageEdited={(url) => {
+              setMediaFiles(prev => prev.map((file, i) => 
+                i === editingImageIndex ? { ...file, url } : file
+              ));
+              setShowAIEditor(false);
+              setEditingImageIndex(null);
+            }}
+            onClose={() => {
+              setShowAIEditor(false);
+              setEditingImageIndex(null);
+            }}
+          />
         </div>
       )}
 
@@ -147,7 +198,16 @@ export default function CreatePost({ userPhoto, userName, userId, onCreatePost }
           onClick={() => document.getElementById('post-file-upload')?.click()}
         >
           <Icon name="Image" size={18} className="text-primary" />
-          <span className="text-sm">Фото/Видео</span>
+          <span className="text-sm">Фото</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-2"
+          onClick={() => setShowAIGenerator(true)}
+        >
+          <Icon name="Sparkles" size={18} className="text-secondary" />
+          <span className="text-sm">ИИ</span>
         </Button>
         <input
           id="post-file-upload"

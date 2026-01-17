@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Generate image with valid prompt",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "prompt": "A beautiful sunset over mountains"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "url": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Missing prompt returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {},
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
